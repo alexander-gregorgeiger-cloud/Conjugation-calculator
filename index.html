@@ -463,11 +463,10 @@ function renderSummary() {
   const valid = constructs.filter(c => { const r = calc(c); return r.n !== null; });
   if (valid.length < 1) { el.innerHTML = ''; return; }
 
-  let totLinkerV = 0, totOligoV = 0, totFillup = 0, anyNeg = false;
+  let totLinkerV = 0, totFillup = 0, anyNeg = false;
   valid.forEach(c => {
     const r = calc(c);
     totLinkerV += r.lv;
-    totOligoV += r.ov;
     totFillup += Math.max(0, r.fillup);
     if (r.fillup < 0) anyNeg = true;
   });
@@ -475,15 +474,10 @@ function renderSummary() {
   el.innerHTML = `
     <div class="summary">
       <div class="summary-head">Summary${valid.length > 1 ? ` (${valid.length} constructs)` : ''}</div>
-      <div class="summary-body">
+      <div class="summary-body" style="grid-template-columns: 1fr 1fr;">
         <div class="summary-cell">
           <div class="sl">Total Linker</div>
           <div class="sv">${totLinkerV.toFixed(1)}</div>
-          <div class="su">µL</div>
-        </div>
-        <div class="summary-cell">
-          <div class="sl">Total Oligo</div>
-          <div class="sv">${totOligoV.toFixed(1)}</div>
           <div class="su">µL</div>
         </div>
         <div class="summary-cell ${anyNeg ? 'warn' : ''}">
