@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2F5496">
+<meta name="description" content="Conjugation Calculator for antibody-oligonucleotide reactions">
+<link rel="manifest" href="./manifest.json">
+<title>Conjugation Calc</title>
+<style>
+  :root {
+    --pink: #FCE4EC; --pink-border: #f0b8c8; --pink-focus: #fff0f3;
+    --orange: #FCE4D6; --orange-border: #f0c8a8;
+    --grey: #E8EAF0; --blue: #2F5496; --blue-light: #3a6bc5;
+    --border: #D4D8E0; --bg: #F2F3F5;
+    --red: #D32F2F; --red-bg: #FFEBEE; --red-border: #EF9A9A;
+    --green: #2E7D32; --green-bg: #E8F5E9;
+    --card-radius: 12px; --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --touch-min: 48px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Roboto, 'Segoe UI', -apple-system, Arial, sans-serif;
+    background: var(--bg); color: #1a1a1a;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+
+  /* ===== Install banner ===== */
+  .install-banner {
+    display: none; background: linear-gradient(135deg, #1a3a6e 0%, var(--blue) 100%);
+    color: white; padding: 12px 16px; align-items: center; gap: 12px;
+    font-size: 13px; cursor: pointer;
+  }
+  .install-banner.show { display: flex; }
+  .install-banner .ib-icon { font-size: 24px; flex-shrink: 0; }
+  .install-banner .ib-text { flex: 1; }
+  .install-banner .ib-text b { display: block; font-size: 14px; }
+  .install-banner .ib-btn {
+    background: white; color: var(--blue); border: none; border-radius: 8px;
+    padding: 8px 16px; font-weight: 700; font-family: inherit; font-size: 13px;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .install-banner .ib-close {
+    background: none; border: none; color: rgba(255,255,255,0.6); font-size: 20px;
+    cursor: pointer; padding: 4px;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-light) 100%);
+    color: white; padding: 14px 16px 10px;
+    position: sticky; top: 0; z-index: 20;
+    box-shadow: 0 2px 12px rgba(47,84,150,0.3);
+  }
+  .topbar h1 { font-size: 18px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
+  .params {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+    background: rgba(255,255,255,0.12); border-radius: 8px; padding: 8px;
+  }
+  .param {
+    display: flex; align-items: center; gap: 4px; font-size: 12px;
+  }
+  .param span { opacity: 0.85; font-weight: 500; }
+  .param input {
+    width: 52px; background: rgba(255,255,255,0.22); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px; color: white; text-align: center; font-size: 13px;
+    font-family: inherit; padding: 5px 4px; min-height: var(--touch-min);
+  }
+  .param input:focus { outline: none; background: rgba(255,255,255,0.35); border-color: rgba(255,255,255,0.5); }
+  .param .unit { opacity: 0.6; font-size: 11px; }
+
+  /* ===== Tabs ===== */
+  .tabs {
+    display: flex; background: white; border-bottom: 2px solid var(--blue);
+    position: sticky; top: 0; z-index: 15;
+    box-shadow: var(--shadow);
+  }
+  .tab {
+    flex: 1; padding: 14px; text-align: center; font-size: 14px; font-weight: 600;
+    font-family: inherit; border: none; background: white; color: #999; cursor: pointer;
+    transition: color 0.2s; min-height: var(--touch-min);
+    position: relative;
+  }
+  .tab.active { color: var(--blue); }
+  .tab.active::after {
+    content: ''; position: absolute; bottom: -2px; left: 10%; right: 10%;
+    height: 3px; background: var(--blue); border-radius: 3px 3px 0 0;
+  }
+
+  .tab-content { display: none; padding: 12px; }
+  .tab-content.active { display: block; }
+
+  /* ===== Buttons ===== */
+  .actions { display: flex; gap: 8px; margin-bottom: 12px; }
+  .btn {
+    flex: 1; padding: 12px 8px; border-radius: 10px; border: 1.5px solid var(--border);
+    font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer;
+    text-align: center; background: white; min-height: var(--touch-min);
+    transition: transform 0.1s, box-shadow 0.1s;
+    -webkit-user-select: none; user-select: none;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn.primary { background: var(--blue); color: white; border-color: var(--blue); box-shadow: 0 2px 8px rgba(47,84,150,0.25); }
+  .btn.primary:active { background: var(--blue-light); }
+  .btn.danger { color: var(--red); border-color: var(--red); }
+
+  /* ===== Empty state ===== */
+  .empty {
+    text-align: center; padding: 56px 24px; color: #aaa;
+  }
+  .empty .icon { font-size: 56px; margin-bottom: 14px; opacity: 0.4; }
+  .empty p { font-size: 15px; line-height: 1.5; }
+  .empty .hint { font-size: 13px; margin-top: 8px; opacity: 0.7; }
+
+  /* ===== Master Mix Summary ===== */
+  .summary {
+    background: white; border-radius: var(--card-radius); border: 1.5px solid var(--blue);
+    margin-bottom: 12px; overflow: hidden; box-shadow: var(--shadow);
+  }
+  .summary-head {
+    background: var(--blue); color: white; padding: 10px 12px;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.3px;
+  }
+  .summary-body {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+    background: #eee; padding: 1px;
+  }
+  .summary-cell {
+    background: white; text-align: center; padding: 12px 6px;
+  }
+  .summary-cell .sl { font-size: 10px; color: #888; text-transform: uppercase; font-weight: 600; letter-spacing: 0.3px; }
+  .summary-cell .sv { font-size: 17px; font-weight: 700; margin-top: 2px; color: #333; }
+  .summary-cell .su { font-size: 10px; color: #999; }
+  .summary-cell.warn .sv { color: var(--red); }
+
+  /* ===== Construct card ===== */
+  .card {
+    background: white; border-radius: var(--card-radius); border: 1px solid var(--border);
+    margin-bottom: 12px; overflow: hidden; box-shadow: var(--shadow);
+    animation: slideIn 0.25s ease-out;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .card-head {
+    display: flex; align-items: center; background: var(--blue); padding: 8px 10px; gap: 6px;
+  }
+  .card-head .num {
+    color: white; font-weight: 700; font-size: 14px;
+    background: rgba(255,255,255,0.2); width: 28px; height: 28px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .card-head input {
+    flex: 1; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.25);
+    color: white; font-size: 14px; font-family: inherit; padding: 6px 4px;
+    min-height: var(--touch-min);
+  }
+  .card-head input::placeholder { color: rgba(255,255,255,0.45); }
+  .card-head input:focus { outline: none; border-bottom-color: white; }
+  .card-actions { display: flex; gap: 2px; }
+  .card-btn {
+    color: rgba(255,255,255,0.6); background: none; border: none;
+    font-size: 18px; padding: 4px 8px; cursor: pointer;
+    min-width: 40px; min-height: 40px; display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; transition: background 0.15s;
+  }
+  .card-btn:active { background: rgba(255,255,255,0.15); }
+
+  .card-body { padding: 10px 12px; }
+
+  /* Component sections */
+  .comp { margin-bottom: 8px; }
+  .comp:last-of-type { margin-bottom: 0; }
+  .comp-title {
+    font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 5px;
+  }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .f {
+    display: flex; align-items: center; gap: 5px; font-size: 12px;
+    padding: 3px 0;
+  }
+  .f .fl { color: #888; min-width: 16px; font-size: 12px; font-weight: 600; }
+  .f input {
+    flex: 1; min-width: 0; padding: 10px 6px; border: 1.5px solid var(--pink-border);
+    border-radius: 8px; text-align: center; font-size: 16px; font-family: inherit;
+    background: var(--pink); min-height: var(--touch-min); transition: border-color 0.15s, background 0.15s;
+  }
+  .f input:focus { outline: none; border-color: var(--blue); background: var(--pink-focus); }
+  .f input.invalid { border-color: var(--red); background: var(--red-bg); }
+  .f .fv {
+    flex: 1; min-width: 0; padding: 10px 6px; border-radius: 8px;
+    text-align: center; font-size: 15px; font-weight: 700;
+    min-height: var(--touch-min); display: flex; align-items: center; justify-content: center;
+  }
+  .f .fv.calc { background: var(--grey); color: #444; }
+  .f .fv.pipet { background: var(--orange); color: #6d4c00; }
+  .f .fu { font-size: 10px; color: #999; min-width: 20px; }
+
+  .sep { border-top: 1px solid #f0f0f0; margin: 8px 0; }
+
+  /* Results row */
+  .res {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-top: 10px; padding-top: 10px; border-top: 2px solid var(--blue);
+  }
+  .rb {
+    text-align: center; padding: 10px 6px; border-radius: 8px;
+    font-size: 11px; font-weight: 600; color: #555;
+  }
+  .rb .rv { font-size: 18px; font-weight: 700; display: block; margin-top: 2px; color: #333; }
+  .rb.vt { background: var(--grey); }
+  .rb.fu { background: var(--orange); }
+  .rb.fu.negative { background: var(--red-bg); border: 1.5px solid var(--red-border); }
+  .rb.fu.negative .rv { color: var(--red); }
+
+  /* ===== Tool cards ===== */
+  .tcard {
+    background: white; border-radius: var(--card-radius); border: 1px solid var(--border);
+    padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow);
+  }
+  .tcard h3 {
+    font-size: 15px; color: var(--blue); margin-bottom: 10px;
+    padding-bottom: 6px; border-bottom: 2px solid var(--blue);
+  }
+  .tr { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .tr label { min-width: 65px; font-weight: 600; font-size: 13px; color: #444; }
+  .tr input {
+    flex: 1; min-width: 0; padding: 10px 8px; border: 1.5px solid var(--pink-border); border-radius: 8px;
+    text-align: center; font-size: 16px; font-family: inherit; background: var(--pink);
+    min-height: var(--touch-min);
+  }
+  .tr input:focus { outline: none; border-color: var(--blue); background: var(--pink-focus); }
+  .tr .u { font-size: 11px; color: #777; min-width: 45px; }
+  .tdiv { border-top: 1px solid #f0f0f0; margin: 8px 0; }
+  .tres { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .tres .ri { display: flex; align-items: center; gap: 5px; font-size: 14px; }
+  .tres .rl { font-weight: 700; color: #555; }
+  .tres .rv { background: var(--grey); padding: 7px 14px; border-radius: 8px; font-weight: 700; font-size: 16px; }
+
+  /* ===== Dilution tool ===== */
+  .dil-result { margin-top: 10px; padding: 12px; background: var(--green-bg); border-radius: 8px; font-size: 14px; line-height: 1.7; }
+  .dil-result b { color: var(--green); }
+
+  /* ===== Snackbar / toast ===== */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: #333; color: white; padding: 12px 24px; border-radius: 12px;
+    font-size: 14px; font-family: inherit; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    transition: transform 0.3s ease; pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ===== Selection highlight ===== */
+  ::selection { background: rgba(47,84,150,0.2); }
+
+  /* ===== Android nav bar spacing ===== */
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    body { padding-bottom: calc(env(safe-area-inset-bottom) + 12px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Install banner for Android -->
+<div class="install-banner" id="installBanner">
+  <span class="ib-icon">⚗️</span>
+  <div class="ib-text">
+    <b>Install App</b>
+    Use offline, right from your home screen
+  </div>
+  <button class="ib-btn" id="installBtn">Install</button>
+  <button class="ib-close" id="installClose">✕</button>
+</div>
+
+<div class="topbar">
+  <h1>Conjugation Calculator</h1>
+  <div class="params">
+    <div class="param">
+      <span>Linker</span>
+      <input id="linkerX" type="number" value="2" inputmode="decimal" step="any" oninput="renderAll()">
+      <span class="unit">×</span>
+    </div>
+    <div class="param">
+      <span>Oligo</span>
+      <input id="oligoX" type="number" value="3" inputmode="decimal" step="any" oninput="renderAll()">
+      <span class="unit">×</span>
+    </div>
+    <div class="param">
+      <span>Stock</span>
+      <input id="defaultStock" type="number" value="100" inputmode="decimal" step="any" oninput="renderAll()">
+      <span class="unit">µM</span>
+    </div>
+    <div class="param">
+      <span>Target</span>
+      <input id="targetV" type="number" value="510" inputmode="decimal" step="any" oninput="renderAll()">
+      <span class="unit">µL</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab(0)">Conjugation</button>
+  <button class="tab" onclick="switchTab(1)">Tools</button>
+</div>
+
+<!-- TAB 0: Conjugation -->
+<div class="tab-content active" id="tab0">
+  <div class="actions">
+    <button class="btn primary" onclick="addConstruct()">+ Add</button>
+    <button class="btn" onclick="exportCSV()">CSV</button>
+    <button class="btn danger" onclick="clearAll()">Clear</button>
+  </div>
+  <div id="summary"></div>
+  <div id="constructs"></div>
+  <div id="emptyState" class="empty" style="display:none">
+    <div class="icon">⚗️</div>
+    <p>No constructs yet</p>
+    <p class="hint">Tap <b>+ Add</b> to start planning your conjugation</p>
+  </div>
+</div>
+
+<!-- TAB 1: Tools -->
+<div class="tab-content" id="tab1">
+  <div class="tcard">
+    <h3>Mass → Concentration</h3>
+    <div class="tr"><label>Mass:</label><input id="mc_mass" type="number" inputmode="decimal" step="any" placeholder="—" oninput="calcMassConc()"><span class="u">µg</span></div>
+    <div class="tr"><label>MW:</label><input id="mc_mw" type="number" inputmode="decimal" step="any" placeholder="—" oninput="calcMassConc()"><span class="u">kDa</span></div>
+    <div class="tr"><label>Dissolve:</label><input id="mc_vol" type="number" inputmode="decimal" step="any" placeholder="—" oninput="calcMassConc()"><span class="u">µL</span></div>
+    <div class="tres" id="mc_result"></div>
+  </div>
+
+  <div class="tcard">
+    <h3>A280 → Concentration</h3>
+    <div class="tr"><label>A280:</label><input id="abs_a280" type="number" inputmode="decimal" step="any" placeholder="—" oninput="calcA280()"><span class="u"></span></div>
+    <div class="tr"><label>ε:</label><input id="abs_epsilon" type="number" inputmode="decimal" step="any" placeholder="—" oninput="calcA280()"><span class="u">M⁻¹cm⁻¹</span></div>
+    <div class="tr"><label>Path:</label><input id="abs_path" type="number" inputmode="decimal" step="any" value="1" oninput="calcA280()"><span class="u">cm</span></div>
+    <div class="tdiv"></div>
+    <div class="tr"><label>MW:</label><input id="abs_mw" type="number" inputmode="decimal" step="any" placeholder="opt." oninput="calcA280()"><span class="u">kDa</span></div>
+    <div class="tres" id="abs_result"></div>
+  </div>
+
+  <div class="tcard">
+    <h3>Dilution (C1V1 = C2V2)</h3>
+    <div class="tr"><label>C1:</label><input id="dil_c1" type="number" inputmode="decimal" step="any" placeholder="stock" oninput="calcDilution()"><span class="u">µM</span></div>
+    <div class="tr"><label>C2:</label><input id="dil_c2" type="number" inputmode="decimal" step="any" placeholder="target" oninput="calcDilution()"><span class="u">µM</span></div>
+    <div class="tr"><label>V2:</label><input id="dil_v2" type="number" inputmode="decimal" step="any" placeholder="final vol" oninput="calcDilution()"><span class="u">µL</span></div>
+    <div id="dil_result"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== PWA: Service Worker + Install ===== */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').classList.add('show');
+});
+
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  if (result.outcome === 'accepted') toast('App installed!');
+  deferredPrompt = null;
+  document.getElementById('installBanner').classList.remove('show');
+});
+
+document.getElementById('installClose').addEventListener('click', () => {
+  document.getElementById('installBanner').classList.remove('show');
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBanner').classList.remove('show');
+  toast('App installed!');
+});
+
+/* ===== Core Logic ===== */
+let constructs = [], nextId = 1;
+
+function gv(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function getLinkerX() { return gv('linkerX') || 2; }
+function getOligoX() { return gv('oligoX') || 3; }
+function getDefaultStock() { return gv('defaultStock') || 100; }
+function getTargetV() { return gv('targetV') || 510; }
+
+function switchTab(i) {
+  document.querySelectorAll('.tab').forEach((t,j) => t.classList.toggle('active', j===i));
+  document.querySelectorAll('.tab-content').forEach((t,j) => t.classList.toggle('active', j===i));
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2000);
+  // Android haptic feedback
+  if (navigator.vibrate) navigator.vibrate(30);
+}
+
+/* ===== Construct CRUD ===== */
+function addConstruct(name, c, v, lc, oc) {
+  const id = nextId++;
+  constructs.push({
+    id, name: name || `Protein_${id}`,
+    c: c || '', v: v || '',
+    linkerC: lc || getDefaultStock(),
+    oligoC: oc || getDefaultStock()
+  });
+  renderAll();
+}
+
+function cloneConstruct(id) {
+  const src = constructs.find(x => x.id === id);
+  if (!src) return;
+  const nid = nextId++;
+  constructs.push({
+    id: nid, name: src.name + ' (copy)',
+    c: src.c, v: src.v,
+    linkerC: src.linkerC, oligoC: src.oligoC
+  });
+  renderAll();
+  toast('Construct cloned');
+}
+
+function removeConstruct(id) {
+  constructs = constructs.filter(c => c.id !== id);
+  renderAll();
+}
+
+function moveConstruct(id, dir) {
+  const idx = constructs.findIndex(c => c.id === id);
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= constructs.length) return;
+  [constructs[idx], constructs[newIdx]] = [constructs[newIdx], constructs[idx]];
+  renderAll();
+}
+
+/* ===== Calculation ===== */
+function calc(con) {
+  const c = parseFloat(con.c), v = parseFloat(con.v);
+  const lc = parseFloat(con.linkerC) || getDefaultStock();
+  const oc = parseFloat(con.oligoC) || getDefaultStock();
+  if (!c || !v || c <= 0 || v <= 0) return { n:null, ln:null, lv:null, on:null, ov:null, vtot:null, fillup:null };
+  const n = c * v * 1e-3;
+  const ln = n * getLinkerX(), lv = ln * 1000 / lc;
+  const on = n * getOligoX(), ov = on * 1000 / oc;
+  const vtot = v + lv + ov;
+  return { n, ln, lv, on, ov, vtot, fillup: getTargetV() - vtot };
+}
+
+function f(v, d) { return v === null || v === undefined || isNaN(v) ? '—' : v.toFixed(d); }
+
+/* ===== Master Mix Summary ===== */
+function renderSummary() {
+  const el = document.getElementById('summary');
+  const valid = constructs.filter(c => { const r = calc(c); return r.n !== null; });
+  if (valid.length < 2) { el.innerHTML = ''; return; }
+
+  let totLinkerV = 0, totOligoV = 0, totFillup = 0, anyNeg = false;
+  valid.forEach(c => {
+    const r = calc(c);
+    totLinkerV += r.lv;
+    totOligoV += r.ov;
+    totFillup += Math.max(0, r.fillup);
+    if (r.fillup < 0) anyNeg = true;
+  });
+
+  el.innerHTML = `
+    <div class="summary">
+      <div class="summary-head">Master Mix Summary (${valid.length} constructs)</div>
+      <div class="summary-body">
+        <div class="summary-cell">
+          <div class="sl">Total Linker</div>
+          <div class="sv">${totLinkerV.toFixed(1)}</div>
+          <div class="su">µL</div>
+        </div>
+        <div class="summary-cell">
+          <div class="sl">Total Oligo</div>
+          <div class="sv">${totOligoV.toFixed(1)}</div>
+          <div class="su">µL</div>
+        </div>
+        <div class="summary-cell ${anyNeg ? 'warn' : ''}">
+          <div class="sl">Total Buffer</div>
+          <div class="sv">${totFillup.toFixed(1)}</div>
+          <div class="su">µL</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ===== Render ===== */
+function renderAll() {
+  const el = document.getElementById('constructs');
+  const emptyEl = document.getElementById('emptyState');
+
+  if (constructs.length === 0) {
+    el.innerHTML = '';
+    emptyEl.style.display = 'block';
+    document.getElementById('summary').innerHTML = '';
+    saveState();
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  el.innerHTML = '';
+  constructs.forEach((con, idx) => {
+    const r = calc(con);
+    const fillNeg = r.fillup !== null && r.fillup < 0;
+    const d = document.createElement('div');
+    d.className = 'card';
+    d.innerHTML = `
+      <div class="card-head">
+        <span class="num">${idx + 1}</span>
+        <input type="text" value="${escH(con.name)}" onchange="uf(${con.id},'name',this.value)" placeholder="Protein name">
+        <div class="card-actions">
+          ${idx > 0 ? `<button class="card-btn" onclick="moveConstruct(${con.id},-1)" title="Move up">↑</button>` : ''}
+          ${idx < constructs.length-1 ? `<button class="card-btn" onclick="moveConstruct(${con.id},1)" title="Move down">↓</button>` : ''}
+          <button class="card-btn" onclick="cloneConstruct(${con.id})" title="Clone">⧉</button>
+          <button class="card-btn" onclick="removeConstruct(${con.id})" title="Remove">✕</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="comp">
+          <div class="comp-title">Protein</div>
+          <div class="fields">
+            <div class="f"><span class="fl">c</span><input type="number" inputmode="decimal" step="any" value="${con.c}" oninput="uf(${con.id},'c',this.value)" onfocus="this.select()" placeholder="µM"><span class="fu">µM</span></div>
+            <div class="f"><span class="fl">V</span><input type="number" inputmode="decimal" step="any" value="${con.v}" oninput="uf(${con.id},'v',this.value)" onfocus="this.select()" placeholder="µL"><span class="fu">µL</span></div>
+          </div>
+          <div class="fields" style="margin-top:4px">
+            <div class="f"><span class="fl">n</span><div class="fv calc">${f(r.n,2)}</div><span class="fu">nmol</span></div>
+          </div>
+        </div>
+        <div class="sep"></div>
+        <div class="comp">
+          <div class="comp-title">Linker (${getLinkerX()}×)</div>
+          <div class="fields">
+            <div class="f"><span class="fl">c</span><input type="number" inputmode="decimal" step="any" value="${con.linkerC}" oninput="uf(${con.id},'linkerC',this.value)" onfocus="this.select()"><span class="fu">µM</span></div>
+            <div class="f"><span class="fl">V</span><div class="fv pipet">${f(r.lv,2)}</div><span class="fu">µL</span></div>
+          </div>
+        </div>
+        <div class="sep"></div>
+        <div class="comp">
+          <div class="comp-title">Oligo (${getOligoX()}×)</div>
+          <div class="fields">
+            <div class="f"><span class="fl">c</span><input type="number" inputmode="decimal" step="any" value="${con.oligoC}" oninput="uf(${con.id},'oligoC',this.value)" onfocus="this.select()"><span class="fu">µM</span></div>
+            <div class="f"><span class="fl">V</span><div class="fv pipet">${f(r.ov,2)}</div><span class="fu">µL</span></div>
+          </div>
+        </div>
+        <div class="res">
+          <div class="rb vt">V<sub>total</sub><span class="rv">${f(r.vtot,1)} µL</span></div>
+          <div class="rb fu ${fillNeg ? 'negative' : ''}">Fill-up<span class="rv">${f(r.fillup,1)} µL</span></div>
+        </div>
+      </div>`;
+    el.appendChild(d);
+  });
+
+  renderSummary();
+  saveState();
+}
+
+function escH(s) { return String(s).replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+function uf(id, field, value) {
+  const c = constructs.find(x => x.id === id);
+  if (c) { c[field] = value; renderAll(); }
+}
+
+function clearAll() {
+  if (!confirm('Clear all constructs?')) return;
+  constructs = []; nextId = 1;
+  renderAll();
+  toast('All cleared');
+}
+
+/* ===== CSV Export ===== */
+function exportCSV() {
+  if (constructs.length === 0) { toast('Nothing to export'); return; }
+  let csv = `Conjugation Calculator Export\n`;
+  csv += `Linker×,${getLinkerX()},Oligo×,${getOligoX()},Stock(µM),${getDefaultStock()},Target(µL),${getTargetV()}\n\n`;
+  csv += 'Protein,c(µM),V(µL),n(nmol),Linker_c(µM),V_linker(µL),n_linker(nmol),Oligo_c(µM),V_oligo(µL),n_oligo(nmol),Vtot(µL),Fillup(µL)\n';
+  constructs.forEach(c => {
+    const r = calc(c);
+    csv += [c.name, c.c||'', c.v||'', r.n!==null?r.n.toFixed(2):'',
+      c.linkerC, r.lv!==null?r.lv.toFixed(3):'', r.ln!==null?r.ln.toFixed(2):'',
+      c.oligoC, r.ov!==null?r.ov.toFixed(3):'', r.on!==null?r.on.toFixed(2):'',
+      r.vtot!==null?r.vtot.toFixed(2):'', r.fillup!==null?r.fillup.toFixed(2):''].join(',') + '\n';
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'conjugation.csv'; a.click();
+  toast('CSV downloaded');
+}
+
+/* ===== Persistence ===== */
+function saveState() {
+  try {
+    localStorage.setItem('conj_v2', JSON.stringify({
+      constructs, nextId,
+      lx: getLinkerX(), ox: getOligoX(),
+      ds: getDefaultStock(), tv: getTargetV()
+    }));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('conj_v2'));
+    if (!s) return false;
+    constructs = s.constructs || []; nextId = s.nextId || 1;
+    document.getElementById('linkerX').value = s.lx || 2;
+    document.getElementById('oligoX').value = s.ox || 3;
+    document.getElementById('defaultStock').value = s.ds || 100;
+    document.getElementById('targetV').value = s.tv || 510;
+    renderAll();
+    return true;
+  } catch(e) { return false; }
+}
+
+/* ===== Tool calculations ===== */
+function calcMassConc() {
+  const m = parseFloat(document.getElementById('mc_mass').value);
+  const mw = parseFloat(document.getElementById('mc_mw').value);
+  const v = parseFloat(document.getElementById('mc_vol').value);
+  const el = document.getElementById('mc_result');
+  if (!m || !mw || m<=0 || mw<=0) { el.innerHTML=''; return; }
+  const n = m / mw;
+  let h = `<div class="ri"><span class="rl">n =</span><span class="rv">${n.toFixed(2)}</span> nmol</div>`;
+  if (v && v > 0) {
+    h += `<div class="ri"><span class="rl">c =</span><span class="rv">${(n*1000/v).toFixed(2)}</span> µM</div>`;
+    h += `<div class="ri"><span class="rl">c =</span><span class="rv">${(m/v).toFixed(3)}</span> mg/mL</div>`;
+  }
+  el.innerHTML = h;
+}
+
+function calcA280() {
+  const a = parseFloat(document.getElementById('abs_a280').value);
+  const e = parseFloat(document.getElementById('abs_epsilon').value);
+  const p = parseFloat(document.getElementById('abs_path').value) || 1;
+  const mw = parseFloat(document.getElementById('abs_mw').value);
+  const el = document.getElementById('abs_result');
+  if (!a || !e || e <= 0) { el.innerHTML=''; return; }
+  const cm = a / (e * p), cu = cm * 1e6;
+  let h = `<div class="ri"><span class="rl">c =</span><span class="rv">${cu.toFixed(2)}</span> µM</div>`;
+  if (mw && mw > 0) h += `<div class="ri"><span class="rl">c =</span><span class="rv">${(cu*mw/1000).toFixed(3)}</span> mg/mL</div>`;
+  el.innerHTML = h;
+}
+
+function calcDilution() {
+  const c1 = parseFloat(document.getElementById('dil_c1').value);
+  const c2 = parseFloat(document.getElementById('dil_c2').value);
+  const v2 = parseFloat(document.getElementById('dil_v2').value);
+  const el = document.getElementById('dil_result');
+  if (!c1 || !c2 || !v2 || c1<=0 || c2<=0 || v2<=0) { el.innerHTML=''; return; }
+  if (c2 >= c1) { el.innerHTML = '<div class="dil-result" style="background:var(--red-bg)">C2 must be less than C1</div>'; return; }
+  const v1 = (c2 * v2) / c1;
+  const buffer = v2 - v1;
+  el.innerHTML = `<div class="dil-result">
+    Pipette <b>${v1.toFixed(2)} µL</b> stock<br>
+    Add <b>${buffer.toFixed(2)} µL</b> buffer<br>
+    → Final: <b>${v2} µL</b> at <b>${c2} µM</b>
+  </div>`;
+}
+
+/* ===== Init ===== */
+if (!loadState()) addConstruct('Protein_1', '', '', 100, 100);
+</script>
+</body>
+</html>
