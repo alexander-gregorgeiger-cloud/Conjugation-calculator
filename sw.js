@@ -1,4 +1,4 @@
-const CACHE = 'conj-calc-v8';
+const CACHE = 'conj-calc-v9';
 const ASSETS = ['./index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
