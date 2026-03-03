@@ -185,33 +185,33 @@
     font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase;
     letter-spacing: 0.5px; margin-bottom: 3px;
   }
-  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
   .f {
-    display: flex; align-items: center; gap: 3px; font-size: 11px;
+    display: flex; align-items: center; gap: 2px; font-size: 11px;
     padding: 2px 0;
   }
   .f .fl { color: #888; min-width: 12px; font-size: 11px; font-weight: 600; flex-shrink: 0; }
   .f input {
-    flex: 1; min-width: 0; width: 0; padding: 4px 2px; border: 1px solid var(--pink-border);
-    border-left: 2px solid var(--blue); border-radius: 5px; text-align: center; font-size: 13px; font-family: inherit;
+    flex: 1; min-width: 0; width: 0; padding: 4px 2px; border: 1.5px solid var(--pink-border);
+    border-radius: 5px; text-align: center; font-size: 13px; font-family: inherit;
     background: var(--pink); min-height: var(--touch-min); transition: border-color 0.15s, background 0.15s;
   }
-  .f input:focus { outline: none; border-color: var(--accent); border-left: 2px solid var(--accent); background: var(--pink-focus); }
+  .f input:focus { outline: none; border-color: var(--accent); background: var(--pink-focus); }
   .f input.invalid { border-color: var(--red); background: var(--red-bg); }
   .f .fv {
     flex: 1; min-width: 0; width: 0; padding: 4px 2px; border-radius: 5px;
     text-align: center; font-size: 12px; font-weight: 700;
     min-height: var(--touch-min); display: flex; align-items: center; justify-content: center;
   }
-  .f .fv.calc { background: var(--grey); color: #3a4550; border-left: 2px solid #8a9aaa; }
-  .f .fv.pipet { background: var(--orange); color: #b36800; border-left: 2px solid var(--accent); }
-  .f .fu { font-size: 9px; color: #999; min-width: 16px; }
+  .f .fv.calc { background: var(--grey); color: #3a4550; border: 1.5px solid #b0bac4; }
+  .f .fv.pipet { background: var(--orange); color: #b36800; border: 1.5px solid var(--accent); }
+  .f .fu { font-size: 9px; color: #999; flex-shrink: 0; }
 
   .sep { border-top: 1px solid #f5dfc0; margin: 8px 0; }
 
   /* Fill-up styling */
-  .fv.calc-fu { background: var(--orange); color: #b36800; border-left: 2px solid var(--accent); }
-  .fv.calc-fu.negative { background: var(--red-bg); color: var(--red); border-left-color: var(--red); }
+  .fv.calc-fu { background: var(--orange); color: #b36800; border: 1.5px solid var(--accent); }
+  .fv.calc-fu.negative { background: var(--red-bg); color: var(--red); border-color: var(--red); }
 
   /* ===== Tool cards ===== */
   .tcard {
@@ -554,7 +554,8 @@ function renderAll() {
             <div class="f"><span class="fl">V</span><div class="fv pipet" data-calc="ov">${f(r.ov,2)}</div><span class="fu">µL</span></div>
           </div>
         </div>
-        <div class="fields" style="margin-top:4px">
+        <div class="sep"></div>
+        <div class="fields">
           <div class="f"><span class="fl">V<sub>t</sub></span><div class="fv calc" data-calc="vtot">${f(r.vtot,1)}</div><span class="fu">µL</span></div>
           <div class="f"><span class="fl">Fill</span><div class="fv calc-fu ${fillNeg ? 'negative' : ''}" data-calc="fillup">${f(r.fillup,1)}</div><span class="fu">µL</span></div>
         </div>
