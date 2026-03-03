@@ -13,8 +13,8 @@
 <style>
   :root {
     --pink: #f0ecf8; --pink-border: #c4b0e0; --pink-focus: #f5f2fc;
-    --orange: #FFF3E0; --orange-border: #f5b74a;
-    --grey: #f0eef4; --blue: #3c1192; --blue-light: #4d1aad;
+    --orange: #FFF0D4; --orange-border: #f5b74a;
+    --grey: #e8ecef; --blue: #3c1192; --blue-light: #4d1aad;
     --accent: #F39200; --accent-light: #f9a825;
     --border: #D4D8E0; --bg: #f4f4f4;
     --red: #D32F2F; --red-bg: #FFEBEE; --red-border: #EF9A9A;
@@ -92,7 +92,7 @@
   .tab.active { color: var(--blue); }
   .tab.active::after {
     content: ''; position: absolute; bottom: -2px; left: 10%; right: 10%;
-    height: 3px; background: var(--blue); border-radius: 3px 3px 0 0;
+    height: 3px; background: var(--accent); border-radius: 3px 3px 0 0;
   }
 
   .tab-content { display: none; padding: 8px; }
@@ -156,7 +156,7 @@
   }
   .card-head .num {
     color: white; font-weight: 700; font-size: 12px;
-    background: rgba(255,255,255,0.2); width: 24px; height: 24px;
+    background: var(--accent); width: 24px; height: 24px;
     border-radius: 50%; display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
@@ -182,7 +182,7 @@
   .comp { margin-bottom: 5px; }
   .comp:last-of-type { margin-bottom: 0; }
   .comp-title {
-    font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase;
+    font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase;
     letter-spacing: 0.5px; margin-bottom: 3px;
   }
   .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
@@ -193,36 +193,31 @@
   .f .fl { color: #888; min-width: 14px; font-size: 11px; font-weight: 600; }
   .f input {
     flex: 1; min-width: 0; padding: 4px 3px; border: 1px solid var(--pink-border);
-    border-radius: 5px; text-align: center; font-size: 13px; font-family: inherit;
+    border-left: 3px solid var(--blue); border-radius: 5px; text-align: center; font-size: 13px; font-family: inherit;
     background: var(--pink); min-height: var(--touch-min); transition: border-color 0.15s, background 0.15s;
   }
-  .f input:focus { outline: none; border-color: var(--blue); background: var(--pink-focus); }
+  .f input:focus { outline: none; border-color: var(--accent); border-left: 3px solid var(--accent); background: var(--pink-focus); }
   .f input.invalid { border-color: var(--red); background: var(--red-bg); }
   .f .fv {
     flex: 1; min-width: 0; padding: 4px 3px; border-radius: 5px;
     text-align: center; font-size: 12px; font-weight: 700;
     min-height: var(--touch-min); display: flex; align-items: center; justify-content: center;
   }
-  .f .fv.calc { background: var(--grey); color: #444; }
-  .f .fv.pipet { background: var(--orange); color: #b36800; }
+  .f .fv.calc { background: var(--grey); color: #555; border-left: 3px solid #aab4be; }
+  .f .fv.pipet { background: var(--orange); color: #b36800; border-left: 3px solid var(--accent); }
   .f .fu { font-size: 9px; color: #999; min-width: 18px; }
 
-  .sep { border-top: 1px solid #f0f0f0; margin: 8px 0; }
+  .sep { border-top: 1px solid #f5dfc0; margin: 8px 0; }
 
-  /* Results row */
+  /* Results row — same style as other fields */
   .res {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
-    margin-top: 6px; padding-top: 6px; border-top: 2px solid var(--blue);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+    margin-top: 4px;
   }
-  .rb {
-    text-align: center; padding: 6px 4px; border-radius: 6px;
-    font-size: 10px; font-weight: 600; color: #555;
-  }
-  .rb .rv { font-size: 15px; font-weight: 700; display: block; margin-top: 1px; color: #333; }
-  .rb.vt { background: var(--grey); }
-  .rb.fu { background: var(--orange); }
-  .rb.fu.negative { background: var(--red-bg); border: 1.5px solid var(--red-border); }
-  .rb.fu.negative .rv { color: var(--red); }
+  .res .f { padding: 2px 0; }
+  .res .fv.calc-vt { background: var(--grey); color: #555; border-left: 3px solid #aab4be; }
+  .res .fv.calc-fu { background: var(--orange); color: #b36800; border-left: 3px solid var(--accent); }
+  .res .fv.calc-fu.negative { background: var(--red-bg); color: var(--red); border-left-color: var(--red); }
 
   /* ===== Tool cards ===== */
   .tcard {
@@ -231,7 +226,7 @@
   }
   .tcard h3 {
     font-size: 13px; color: var(--blue); margin-bottom: 8px;
-    padding-bottom: 4px; border-bottom: 2px solid var(--blue);
+    padding-bottom: 4px; border-bottom: 2px solid var(--accent);
   }
   .tr { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
   .tr label { min-width: 55px; font-weight: 600; font-size: 12px; color: #444; }
@@ -240,7 +235,7 @@
     text-align: center; font-size: 13px; font-family: inherit; background: var(--pink);
     min-height: var(--touch-min);
   }
-  .tr input:focus { outline: none; border-color: var(--blue); background: var(--pink-focus); }
+  .tr input:focus { outline: none; border-color: var(--accent); background: var(--pink-focus); }
   .tr .u { font-size: 11px; color: #777; min-width: 45px; }
   .tdiv { border-top: 1px solid #f0f0f0; margin: 8px 0; }
   .tres { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
@@ -288,22 +283,22 @@
   <div class="params">
     <div class="param">
       <span>Linker</span>
-      <input id="linkerX" type="number" value="2" inputmode="decimal" step="any" oninput="renderAll()">
+      <input id="linkerX" type="number" value="2" inputmode="decimal" step="any" oninput="updateAllCalcs()">
       <span class="unit">×</span>
     </div>
     <div class="param">
       <span>Oligo</span>
-      <input id="oligoX" type="number" value="3" inputmode="decimal" step="any" oninput="renderAll()">
+      <input id="oligoX" type="number" value="3" inputmode="decimal" step="any" oninput="updateAllCalcs()">
       <span class="unit">×</span>
     </div>
     <div class="param">
       <span>Stock</span>
-      <input id="defaultStock" type="number" value="100" inputmode="decimal" step="any" oninput="renderAll()">
+      <input id="defaultStock" type="number" value="100" inputmode="decimal" step="any" oninput="updateAllCalcs()">
       <span class="unit">µM</span>
     </div>
     <div class="param">
       <span>Target</span>
-      <input id="targetV" type="number" value="510" inputmode="decimal" step="any" oninput="renderAll()">
+      <input id="targetV" type="number" value="510" inputmode="decimal" step="any" oninput="updateAllCalcs()">
       <span class="unit">µL</span>
     </div>
   </div>
@@ -472,7 +467,7 @@ function f(v, d) { return v === null || v === undefined || isNaN(v) ? '—' : v.
 function renderSummary() {
   const el = document.getElementById('summary');
   const valid = constructs.filter(c => { const r = calc(c); return r.n !== null; });
-  if (valid.length < 2) { el.innerHTML = ''; return; }
+  if (valid.length < 1) { el.innerHTML = ''; return; }
 
   let totLinkerV = 0, totOligoV = 0, totFillup = 0, anyNeg = false;
   valid.forEach(c => {
@@ -485,7 +480,7 @@ function renderSummary() {
 
   el.innerHTML = `
     <div class="summary">
-      <div class="summary-head">Master Mix Summary (${valid.length} constructs)</div>
+      <div class="summary-head">Summary${valid.length > 1 ? ` (${valid.length} constructs)` : ''}</div>
       <div class="summary-body">
         <div class="summary-cell">
           <div class="sl">Total Linker</div>
@@ -526,6 +521,7 @@ function renderAll() {
     const fillNeg = r.fillup !== null && r.fillup < 0;
     const d = document.createElement('div');
     d.className = 'card';
+    d.dataset.cid = con.id;
     d.innerHTML = `
       <div class="card-head">
         <span class="num">${idx + 1}</span>
@@ -545,7 +541,7 @@ function renderAll() {
             <div class="f"><span class="fl">V</span><input type="number" inputmode="decimal" step="any" value="${con.v}" oninput="uf(${con.id},'v',this.value)" onfocus="this.select()" placeholder="µL"><span class="fu">µL</span></div>
           </div>
           <div class="fields" style="margin-top:4px">
-            <div class="f"><span class="fl">n</span><div class="fv calc">${f(r.n,2)}</div><span class="fu">nmol</span></div>
+            <div class="f"><span class="fl">n</span><div class="fv calc" data-calc="n">${f(r.n,2)}</div><span class="fu">nmol</span></div>
           </div>
         </div>
         <div class="sep"></div>
@@ -553,7 +549,7 @@ function renderAll() {
           <div class="comp-title">Linker (${getLinkerX()}×)</div>
           <div class="fields">
             <div class="f"><span class="fl">c</span><input type="number" inputmode="decimal" step="any" value="${con.linkerC}" oninput="uf(${con.id},'linkerC',this.value)" onfocus="this.select()"><span class="fu">µM</span></div>
-            <div class="f"><span class="fl">V</span><div class="fv pipet">${f(r.lv,2)}</div><span class="fu">µL</span></div>
+            <div class="f"><span class="fl">V</span><div class="fv pipet" data-calc="lv">${f(r.lv,2)}</div><span class="fu">µL</span></div>
           </div>
         </div>
         <div class="sep"></div>
@@ -561,12 +557,16 @@ function renderAll() {
           <div class="comp-title">Oligo (${getOligoX()}×)</div>
           <div class="fields">
             <div class="f"><span class="fl">c</span><input type="number" inputmode="decimal" step="any" value="${con.oligoC}" oninput="uf(${con.id},'oligoC',this.value)" onfocus="this.select()"><span class="fu">µM</span></div>
-            <div class="f"><span class="fl">V</span><div class="fv pipet">${f(r.ov,2)}</div><span class="fu">µL</span></div>
+            <div class="f"><span class="fl">V</span><div class="fv pipet" data-calc="ov">${f(r.ov,2)}</div><span class="fu">µL</span></div>
           </div>
         </div>
-        <div class="res">
-          <div class="rb vt">V<sub>total</sub><span class="rv">${f(r.vtot,1)} µL</span></div>
-          <div class="rb fu ${fillNeg ? 'negative' : ''}">Fill-up<span class="rv">${f(r.fillup,1)} µL</span></div>
+        <div class="sep"></div>
+        <div class="comp">
+          <div class="comp-title">Result</div>
+          <div class="fields">
+            <div class="f"><span class="fl">V<sub>t</sub></span><div class="fv calc-vt" data-calc="vtot">${f(r.vtot,1)}</div><span class="fu">µL</span></div>
+            <div class="f"><span class="fl">Fill</span><div class="fv calc-fu ${fillNeg ? 'negative' : ''}" data-calc="fillup">${f(r.fillup,1)}</div><span class="fu">µL</span></div>
+          </div>
         </div>
       </div>`;
     el.appendChild(d);
@@ -577,9 +577,37 @@ function renderAll() {
 }
 
 function escH(s) { return String(s).replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+/* Lightweight update: only change calculated values, don't rebuild DOM */
+function updateCalcDisplay(id) {
+  const con = constructs.find(x => x.id === id);
+  if (!con) return;
+  const r = calc(con);
+  const card = document.querySelector(`[data-cid="${id}"]`);
+  if (!card) return;
+  card.querySelectorAll('[data-calc]').forEach(v => {
+    const k = v.dataset.calc;
+    if (k === 'n') v.textContent = f(r.n, 2);
+    else if (k === 'lv') v.textContent = f(r.lv, 2);
+    else if (k === 'ov') v.textContent = f(r.ov, 2);
+    else if (k === 'vtot') v.textContent = f(r.vtot, 1);
+    else if (k === 'fillup') v.textContent = f(r.fillup, 1);
+  });
+  const fillNeg = r.fillup !== null && r.fillup < 0;
+  const fuEl = card.querySelector('.calc-fu');
+  if (fuEl) fuEl.classList.toggle('negative', fillNeg);
+  renderSummary();
+  saveState();
+}
+
 function uf(id, field, value) {
   const c = constructs.find(x => x.id === id);
-  if (c) { c[field] = value; renderAll(); }
+  if (c) { c[field] = value; updateCalcDisplay(id); }
+}
+
+/* Update all constructs (for global param changes) without rebuilding DOM */
+function updateAllCalcs() {
+  constructs.forEach(con => updateCalcDisplay(con.id));
 }
 
 function clearAll() {
