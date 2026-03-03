@@ -14,7 +14,7 @@
   :root {
     --pink: #f0ecf8; --pink-border: #c4b0e0; --pink-focus: #f5f2fc;
     --orange: #FFF0D4; --orange-border: #f5b74a;
-    --grey: #e8ecef; --blue: #3c1192; --blue-light: #4d1aad;
+    --grey: #dce1e6; --blue: #3c1192; --blue-light: #4d1aad;
     --accent: #F39200; --accent-light: #f9a825;
     --border: #D4D8E0; --bg: #f4f4f4;
     --red: #D32F2F; --red-bg: #FFEBEE; --red-border: #EF9A9A;
@@ -203,21 +203,15 @@
     text-align: center; font-size: 12px; font-weight: 700;
     min-height: var(--touch-min); display: flex; align-items: center; justify-content: center;
   }
-  .f .fv.calc { background: var(--grey); color: #555; border-left: 3px solid #aab4be; }
+  .f .fv.calc { background: var(--grey); color: #3a4550; border-left: 3px solid #8a9aaa; }
   .f .fv.pipet { background: var(--orange); color: #b36800; border-left: 3px solid var(--accent); }
   .f .fu { font-size: 9px; color: #999; min-width: 18px; }
 
   .sep { border-top: 1px solid #f5dfc0; margin: 8px 0; }
 
-  /* Results row — same style as other fields */
-  .res {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
-    margin-top: 4px;
-  }
-  .res .f { padding: 2px 0; }
-  .res .fv.calc-vt { background: var(--grey); color: #555; border-left: 3px solid #aab4be; }
-  .res .fv.calc-fu { background: var(--orange); color: #b36800; border-left: 3px solid var(--accent); }
-  .res .fv.calc-fu.negative { background: var(--red-bg); color: var(--red); border-left-color: var(--red); }
+  /* Fill-up styling */
+  .fv.calc-fu { background: var(--orange); color: #b36800; border-left: 3px solid var(--accent); }
+  .fv.calc-fu.negative { background: var(--red-bg); color: var(--red); border-left-color: var(--red); }
 
   /* ===== Tool cards ===== */
   .tcard {
@@ -537,8 +531,8 @@ function renderAll() {
         <div class="comp">
           <div class="comp-title">Protein</div>
           <div class="fields">
-            <div class="f"><span class="fl">c</span><input type="number" inputmode="decimal" step="any" value="${con.c}" oninput="uf(${con.id},'c',this.value)" onfocus="this.select()" placeholder="µM"><span class="fu">µM</span></div>
-            <div class="f"><span class="fl">V</span><input type="number" inputmode="decimal" step="any" value="${con.v}" oninput="uf(${con.id},'v',this.value)" onfocus="this.select()" placeholder="µL"><span class="fu">µL</span></div>
+            <div class="f"><span class="fl">c</span><input type="text" inputmode="decimal" value="${con.c}" oninput="uf(${con.id},'c',this.value)" placeholder="µM"><span class="fu">µM</span></div>
+            <div class="f"><span class="fl">V</span><input type="text" inputmode="decimal" value="${con.v}" oninput="uf(${con.id},'v',this.value)" placeholder="µL"><span class="fu">µL</span></div>
           </div>
           <div class="fields" style="margin-top:4px">
             <div class="f"><span class="fl">n</span><div class="fv calc" data-calc="n">${f(r.n,2)}</div><span class="fu">nmol</span></div>
@@ -548,7 +542,7 @@ function renderAll() {
         <div class="comp">
           <div class="comp-title">Linker (${getLinkerX()}×)</div>
           <div class="fields">
-            <div class="f"><span class="fl">c</span><input type="number" inputmode="decimal" step="any" value="${con.linkerC}" oninput="uf(${con.id},'linkerC',this.value)" onfocus="this.select()"><span class="fu">µM</span></div>
+            <div class="f"><span class="fl">c</span><input type="text" inputmode="decimal" value="${con.linkerC}" oninput="uf(${con.id},'linkerC',this.value)"><span class="fu">µM</span></div>
             <div class="f"><span class="fl">V</span><div class="fv pipet" data-calc="lv">${f(r.lv,2)}</div><span class="fu">µL</span></div>
           </div>
         </div>
@@ -556,17 +550,13 @@ function renderAll() {
         <div class="comp">
           <div class="comp-title">Oligo (${getOligoX()}×)</div>
           <div class="fields">
-            <div class="f"><span class="fl">c</span><input type="number" inputmode="decimal" step="any" value="${con.oligoC}" oninput="uf(${con.id},'oligoC',this.value)" onfocus="this.select()"><span class="fu">µM</span></div>
+            <div class="f"><span class="fl">c</span><input type="text" inputmode="decimal" value="${con.oligoC}" oninput="uf(${con.id},'oligoC',this.value)"><span class="fu">µM</span></div>
             <div class="f"><span class="fl">V</span><div class="fv pipet" data-calc="ov">${f(r.ov,2)}</div><span class="fu">µL</span></div>
           </div>
         </div>
-        <div class="sep"></div>
-        <div class="comp">
-          <div class="comp-title">Result</div>
-          <div class="fields">
-            <div class="f"><span class="fl">V<sub>t</sub></span><div class="fv calc-vt" data-calc="vtot">${f(r.vtot,1)}</div><span class="fu">µL</span></div>
-            <div class="f"><span class="fl">Fill</span><div class="fv calc-fu ${fillNeg ? 'negative' : ''}" data-calc="fillup">${f(r.fillup,1)}</div><span class="fu">µL</span></div>
-          </div>
+        <div class="fields" style="margin-top:4px">
+          <div class="f"><span class="fl">V<sub>t</sub></span><div class="fv calc" data-calc="vtot">${f(r.vtot,1)}</div><span class="fu">µL</span></div>
+          <div class="f"><span class="fl">Fill</span><div class="fv calc-fu ${fillNeg ? 'negative' : ''}" data-calc="fillup">${f(r.fillup,1)}</div><span class="fu">µL</span></div>
         </div>
       </div>`;
     el.appendChild(d);
