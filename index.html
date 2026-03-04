@@ -605,19 +605,28 @@ function clearAll() {
 /* ===== CSV Export ===== */
 function exportCSV() {
   if (constructs.length === 0) { toast('Nothing to export'); return; }
+  const d = new Date();
+  const date = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   let csv = `Conjugation Calculator Export\n`;
-  csv += `Linker×,${getLinkerX()},Oligo×,${getOligoX()},Stock(µM),${getDefaultStock()},Target(µL),${getTargetV()}\n\n`;
-  csv += 'Protein,c(µM),V(µL),n(nmol),Linker_c(µM),V_linker(µL),n_linker(nmol),Oligo_c(µM),V_oligo(µL),n_oligo(nmol),Vtot(µL),Fillup(µL)\n';
-  constructs.forEach(c => {
+  csv += `Date,${date}\n`;
+  csv += `Linker excess,${getLinkerX()}x,Oligo excess,${getOligoX()}x\n`;
+  csv += `Target volume,${getTargetV()},µL\n\n`;
+
+  constructs.forEach((c, idx) => {
     const r = calc(c);
-    csv += [c.name, c.c||'', c.v||'', r.n!==null?r.n.toFixed(2):'',
-      c.linkerC, r.lv!==null?r.lv.toFixed(3):'', r.ln!==null?r.ln.toFixed(2):'',
-      c.oligoC, r.ov!==null?r.ov.toFixed(3):'', r.on!==null?r.on.toFixed(2):'',
-      r.vtot!==null?r.vtot.toFixed(2):'', r.fillup!==null?r.fillup.toFixed(2):''].join(',') + '\n';
+    csv += `${c.name}\n`;
+    csv += `,c (µM),V (µL),n (nmol)\n`;
+    csv += `Protein,${c.c||''},${c.v||''},${r.n!==null?r.n.toFixed(2):''}\n`;
+    csv += `Linker (${getLinkerX()}x),${c.linkerC||''},${r.lv!==null?r.lv.toFixed(2):''},${r.ln!==null?r.ln.toFixed(2):''}\n`;
+    csv += `Oligo (${getOligoX()}x),${c.oligoC||''},${r.ov!==null?r.ov.toFixed(2):''},${r.on!==null?r.on.toFixed(2):''}\n`;
+    csv += `Vtotal,,${r.vtot!==null?r.vtot.toFixed(1):''},µL\n`;
+    csv += `Fill-up,,${r.fillup!==null?r.fillup.toFixed(1):''},µL\n`;
+    csv += `\n`;
   });
+
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
-  a.download = 'conjugation.csv'; a.click();
+  a.download = 'conjugation_'+date+'.csv'; a.click();
   toast('CSV downloaded');
 }
 
